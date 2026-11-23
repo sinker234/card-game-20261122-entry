@@ -61,6 +61,12 @@ body {
 .card:hover { transform: translateY(-8px) scale(1.04); }
 .card.selected { transform: translateY(-12px) scale(1.06); box-shadow: 0 0 0 3px #f5b83d, 0 10px 18px rgba(0,0,0,.6); }
 .card.unaffordable { opacity: .55; filter: grayscale(.5); }
+@keyframes cardLand { 0% { transform: translateY(-14px) scale(1.12); box-shadow: 0 0 0 3px #f5b83d, 0 12px 22px rgba(0,0,0,.65); } 100% { transform: none; } }
+.card.just-played { animation: cardLand .45s ease; }
+@keyframes lifeHit { 0% { box-shadow: 0 0 0 3px rgba(229,72,77,.85); } 100% { box-shadow: none; } }
+.life-bar.hit { animation: lifeHit .55s ease; }
+.lane-won-you { box-shadow: 0 0 0 2px rgba(184,240,200,.55), 0 0 18px rgba(70,167,88,.4); }
+.lane-won-foe { box-shadow: 0 0 0 2px rgba(255,180,184,.55), 0 0 18px rgba(229,72,77,.4); }
 .card.small { width: 60px; height: 80px; cursor: default; }
 .card.small:hover { transform: none; }
 .suit-ember { border-color: #e5484d; }
@@ -95,7 +101,10 @@ body {
 .big-btn:hover { filter: brightness(1.1); }
 .keys-hint { font-size: 13px; color: #b9a8c9; }
 .win-panel { border-color: #f5b83d; }
-.win-panel h1 { color: #f5b83d; }
+@keyframes victoryGlow { from { text-shadow: 0 0 12px rgba(245,184,61,.55); } to { text-shadow: 0 0 34px rgba(245,184,61,.95), 0 0 60px rgba(245,184,61,.5); } }
+@keyframes starTwinkle { 0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(1.25) rotate(12deg); opacity: .85; } }
+.win-panel h1 { color: #f5b83d; animation: victoryGlow 1.4s ease-in-out infinite alternate; }
+.win-panel .end-glyph { animation: starTwinkle 1.6s ease-in-out infinite; }
 .loss-panel { border-color: #e5484d; }
 .loss-panel h1 { color: #ff7a6e; }
 .end-glyph { font-size: 52px; }

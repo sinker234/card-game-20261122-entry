@@ -17,6 +17,10 @@ const ui = {
   selectedCard: null,
   selectedLane: 'court',
   showHelp: false,
+  lastPlayed: null, // { uid } of the card that just landed — render animates it once
+  prevYouLife: null,
+  prevFoeLife: null,
+  seenGame: null,
   onStart() {
     game.phase = 'play';
     chooseIntent(game);
@@ -40,6 +44,7 @@ const ui = {
   onPlayCard(cardUid, laneId) {
     const result = playCard(game, cardUid, laneId);
     if (!result.ok) showToast(result.reason);
+    else ui.lastPlayed = { uid: cardUid };
     return result;
   },
   onEndTurn() {
@@ -48,6 +53,7 @@ const ui = {
     draw();
     chooseIntent(game);
     const played = takeFoeTurn(game);
+    if (played.length > 0) ui.lastPlayed = { uid: played[played.length - 1].card.uid };
     for (const { card, laneId } of played) {
       const lane = game.lanes.find((l) => l.id === laneId);
       pushLog(game, `Rook plays ${card.name} (${card.power}) to ${lane.name}.`);
@@ -68,7 +74,31 @@ const ui = {
   },
 };
 
-function draw() { render(game, ui); }
+function draw() {
+  render(game, ui);
+  // Damage flash: the life bars are static DOM, so a class here survives
+  // re-renders; a fresh game resets the baseline without flashing.
+  if (ui.seenGame !== game) {
+    ui.seenGame = game;
+    ui.prevYouLife = game.you.life;
+    ui.prevFoeLife = game.foe.life;
+    return;
+  }
+  flashIfHurt('you', game.you.life, ui.prevYouLife);
+  flashIfHurt('foe', game.foe.life, ui.prevFoeLife);
+  ui.prevYouLife = game.you.life;
+  ui.prevFoeLife = game.foe.life;
+}
+
+function flashIfHurt(side, life, prevLife) {
+  if (prevLife == null || life >= prevLife) return;
+  const bar = document.querySelector(side === 'you' ? '#player-row .life-bar' : '#foe-row .life-bar');
+  if (!bar) return;
+  bar.classList.remove('hit');
+  void bar.offsetWidth; // restart the animation
+  bar.classList.add('hit');
+  setTimeout(() => bar.classList.remove('hit'), 600);
+}
 
 // Expose the live game for play-testing and debugging in the browser console.
 window.__game = game;

@@ -1,5 +1,5 @@
 /* Ember Court — rendering. One job: turn game state into DOM. */
-import { SUITS } from './config.js';
+import { START_LIFE, SUITS } from './config.js';
 import { lanePower } from './state.js';
 
 const $ = (id) => document.getElementById(id);
@@ -7,7 +7,7 @@ const $ = (id) => document.getElementById(id);
 export function cardElement(card, opts = {}) {
   const suit = SUITS[card.suit];
   const el = document.createElement('div');
-  el.className = `card suit-${card.suit}${opts.small ? ' small' : ''}${opts.faceDown ? ' face-down' : ''}${opts.selected ? ' selected' : ''}`;
+  el.className = `card suit-${card.suit}${opts.small ? ' small' : ''}${opts.faceDown ? ' face-down' : ''}${opts.selected ? ' selected' : ''}${opts.justPlayed ? ' just-played' : ''}`;
   el.dataset.uid = card.uid;
   if (opts.faceDown) {
     el.innerHTML = '<div class="card-back">★</div>';
@@ -29,8 +29,8 @@ export function render(game, ui) {
   $('score-label').textContent = `Score ${game.you.score} · Rook ${game.foe.score}`;
   $('you-life-text').textContent = `${Math.max(0, game.you.life)} HP`;
   $('foe-life-text').textContent = `${Math.max(0, game.foe.life)} HP`;
-  $('you-life-fill').style.width = `${Math.max(0, game.you.life) * 5}%`;
-  $('foe-life-fill').style.width = `${Math.max(0, game.foe.life) * 5}%`;
+  $('you-life-fill').style.width = `${Math.max(0, game.you.life) / START_LIFE * 100}%`;
+  $('foe-life-fill').style.width = `${Math.max(0, game.foe.life) / START_LIFE * 100}%`;
   $('foe-hand-label').textContent = `Hand: ${game.foe.hand.length} cards`;
   $('deck-label').textContent = `Deck: ${game.you.deck.length} cards · Discard: ${game.you.discard.length}`;
   $('foe-intent').textContent = game.foeIntent
@@ -41,6 +41,8 @@ export function render(game, ui) {
   renderLanes(game, ui);
   renderHand(game, ui);
   renderOverlay(game, ui);
+  // A just-played card lands once, on the first render after the play.
+  ui.lastPlayed = null;
 }
 
 function laneName(game, laneId) {
@@ -55,10 +57,10 @@ function renderLanes(game, ui) {
     const you = lanePower(lane.you, lane.foe);
     const foe = lanePower(lane.foe, lane.you);
     const col = document.createElement('section');
-    col.className = `lane${ui.selectedLane === lane.id ? ' lane-target' : ''}${game.foeIntent === lane.id ? ' lane-threat' : ''}`;
     col.dataset.lane = lane.id;
     const winnerMark = game.lastResolution
       ? (game.lastResolution.find((r) => r.laneId === lane.id)?.winner ?? null) : null;
+    col.className = `lane${ui.selectedLane === lane.id ? ' lane-target' : ''}${game.foeIntent === lane.id ? ' lane-threat' : ''}${winnerMark === 'you' ? ' lane-won-you' : winnerMark === 'foe' ? ' lane-won-foe' : ''}`;
     col.innerHTML = `
       <div class="lane-head">
         <div class="lane-name">${lane.name}</div>
@@ -72,8 +74,9 @@ function renderLanes(game, ui) {
       <div class="lane-cards you-cards"></div>`;
     const foeBox = col.querySelector('.foe-cards');
     const youBox = col.querySelector('.you-cards');
-    for (const card of lane.foe) foeBox.appendChild(cardElement(card, { small: true }));
-    for (const card of lane.you) youBox.appendChild(cardElement(card, { small: true }));
+    const justPlayed = ui.lastPlayed?.uid;
+    for (const card of lane.foe) foeBox.appendChild(cardElement(card, { small: true, justPlayed: card.uid === justPlayed }));
+    for (const card of lane.you) youBox.appendChild(cardElement(card, { small: true, justPlayed: card.uid === justPlayed }));
     if (lane.foe.length === 0) foeBox.innerHTML = '<div class="lane-empty">Rook has nothing here</div>';
     if (lane.you.length === 0) youBox.innerHTML = '<div class="lane-empty">Play a card here</div>';
     lanesEl.appendChild(col);
@@ -120,7 +123,7 @@ function renderOverlay(game, ui) {
         Play cards into lanes — higher power takes the lane and deals the difference as damage.<br>
         Same suit twice in a lane: <b>Harmony +2</b>. A lone Star: <b>+1</b>. Beat her suit: <b>+2</b>.<br>
         Ember burns Leaf · Leaf drinks Tide · Tide drowns Ember.<br>
-        First to 0 life loses. 20 life each. Good luck, Envoy.</p>
+        First to 0 life loses. 30 life each. Good luck, Envoy.</p>
         <button id="start-btn" type="button" class="big-btn">Take Your Seat ▶</button>
         <p class="keys-hint">Mouse or keyboard: ← → pick a card · ↑ ↓ pick a lane · Enter play · E end turn</p>
       </div>`;

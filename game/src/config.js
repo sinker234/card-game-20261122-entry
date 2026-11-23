@@ -1,6 +1,8 @@
 /* Ember Court — configuration: suits, lanes, deck, tuning. One job: constants. */
 
-export const START_LIFE = 20;
+export const START_LIFE = 30; // 30, not 20: at 20 the duel ended in ~5 turns
+// (300-game sim: 72% over by turn 5, greedy player 35% wins) — too few
+// decisions per game. At 30 it averages ~8 turns and only 7% end by turn 5.
 export const MAX_HAND = 7;
 export const START_HAND = 4;
 export const MAX_MANA = 6;
