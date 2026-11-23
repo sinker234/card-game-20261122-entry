@@ -31,7 +31,7 @@ export function render(game, ui) {
   $('foe-life-text').textContent = `${Math.max(0, game.foe.life)} HP`;
   $('you-life-fill').style.width = `${Math.max(0, game.you.life) / START_LIFE * 100}%`;
   $('foe-life-fill').style.width = `${Math.max(0, game.foe.life) / START_LIFE * 100}%`;
-  $('foe-hand-label').textContent = `Hand: ${game.foe.hand.length} cards`;
+  $('foe-hand-label').textContent = `Hand: ${game.foe.hand.length} card${game.foe.hand.length === 1 ? '' : 's'}`;
   $('deck-label').textContent = `Deck: ${game.you.deck.length} cards · Discard: ${game.you.discard.length}`;
   $('foe-intent').textContent = game.foeIntent
     ? `Rook is eyeing ${laneName(game, game.foeIntent)} — counter her there!`
@@ -60,7 +60,7 @@ function renderLanes(game, ui) {
     col.dataset.lane = lane.id;
     const winnerMark = game.lastResolution
       ? (game.lastResolution.find((r) => r.laneId === lane.id)?.winner ?? null) : null;
-    col.className = `lane${ui.selectedLane === lane.id ? ' lane-target' : ''}${game.foeIntent === lane.id ? ' lane-threat' : ''}${winnerMark === 'you' ? ' lane-won-you' : winnerMark === 'foe' ? ' lane-won-foe' : ''}`;
+    col.className = `lane lane-${lane.id}${ui.selectedLane === lane.id ? ' lane-target' : ''}${game.foeIntent === lane.id ? ' lane-threat' : ''}${winnerMark === 'you' ? ' lane-won-you' : winnerMark === 'foe' ? ' lane-won-foe' : ''}`;
     col.innerHTML = `
       <div class="lane-head">
         <div class="lane-name">${lane.name}</div>
@@ -135,7 +135,7 @@ function renderOverlay(game, ui) {
     overlay.className = '';
     overlay.innerHTML = `
       <div class="panel ${won ? 'win-panel' : 'loss-panel'}">
-        <div class="end-glyph">${won ? '★' : '✕'}</div>
+        <div class="end-glyph">${won ? '★' : '▼'}</div>
         <h1>${won ? 'VICTORY!' : 'DEFEAT'}</h1>
         <p class="tagline">${won
           ? 'The Court is yours. Rook bows, and the candles burn gold.'

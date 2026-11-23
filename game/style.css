@@ -40,13 +40,17 @@ body {
 
 /* Lanes */
 #lanes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 8px 0 6px; }
-.lane { background: #1e5c46; background: linear-gradient(180deg, #205c3d 0%, #17402c 100%); border: 2px solid #2f7d57; border-radius: 14px; padding: 6px; min-height: 196px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.lane { background: linear-gradient(180deg, #205c3d 0%, #17402c 100%); border: 2px solid #2f7d57; border-radius: 14px; padding: 6px; min-height: 196px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+/* Each lane reads at a glance: Court warm gold, Garden green, Vault deep blue. */
+.lane-court { background: linear-gradient(180deg, #6b4423 0%, #452a13 100%); border-color: #a8763e; }
+.lane-garden { background: linear-gradient(180deg, #205c3d 0%, #17402c 100%); border-color: #2f7d57; }
+.lane-vault { background: linear-gradient(180deg, #2a4d66 0%, #1a3245 100%); border-color: #3e7ea6; }
 .lane:hover { border-color: #f5b83d; }
 .lane-target { border-color: #f5b83d; box-shadow: 0 0 0 2px rgba(245,184,61,.5), 0 0 18px rgba(245,184,61,.25); }
 .lane-threat { border-color: #ff7a6e; }
 .lane-head { text-align: center; }
 .lane-name { font-size: 17px; font-weight: 800; letter-spacing: 1px; }
-.lane-blurb { font-size: 12px; color: #cfe8d8; opacity: .85; }
+.lane-blurb { font-size: 12px; color: #e6dcc4; opacity: .85; }
 .lane-score { font-size: 20px; font-weight: 800; line-height: 1.1; }
 .foe-score { color: #ffb4b8; }
 .you-score { color: #b8f0c8; }

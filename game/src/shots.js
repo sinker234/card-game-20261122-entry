@@ -2,7 +2,7 @@
    Each preset builds a genuine game state and lets the normal renderer draw it,
    so every screenshot is the game's own code at work. */
 
-import { createGame, playCard, resolveLanes, checkEnd, pushLog } from './state.js';
+import { createGame, drawCard, playCard, resolveLanes, checkEnd, pushLog } from './state.js';
 import { chooseIntent, takeFoeTurn } from './ai.js';
 
 export function applyShot(game, shot) {
@@ -11,25 +11,34 @@ export function applyShot(game, shot) {
     return game;
   }
   if (shot === 'table') {
-    // A real mid-game: turn 4, both sides have cards on the table.
+    // A real mid-game: turn 5, both sides contesting every lane, a full hand.
+    // (The old preset left a single card in hand and two near-empty lanes.)
     game.phase = 'play';
-    game.turn = 4;
-    game.mana = 3; game.manaMax = 5;
-    game.you.life = 17; game.foe.life = 14;
-    game.you.score = 9; game.foe.score = 6;
-    game.you.lanesWon = 3; game.foe.lanesWon = 1;
+    game.turn = 5;
+    game.mana = 4; game.manaMax = 6;
+    game.you.life = 21; game.foe.life = 18;
+    game.you.score = 11; game.foe.score = 8;
+    game.you.lanesWon = 4; game.foe.lanesWon = 2;
     const youCourt = game.you.hand.splice(0, 2);
     const youGarden = game.you.hand.splice(0, 1);
+    const youVault = game.you.hand.splice(0, 1);
     game.lanes[0].you.push(...youCourt);
     game.lanes[1].you.push(...youGarden);
+    game.lanes[2].you.push(...youVault);
     const foeCourt = game.foe.hand.splice(0, 1);
-    const foeVault = game.foe.hand.splice(0, 2);
+    const foeGarden = game.foe.hand.splice(0, 2);
+    const foeVault = game.foe.hand.splice(0, 1);
     game.lanes[0].foe.push(...foeCourt);
+    game.lanes[1].foe.push(...foeGarden);
     game.lanes[2].foe.push(...foeVault);
+    // Refill the hand the way real turns do, so the shot shows a real hand.
+    drawCard(game, game.you); drawCard(game, game.you);
+    drawCard(game, game.you); drawCard(game, game.you);
+    drawCard(game, game.foe); // Rook holds 1 — exercises the singular label.
     game.foeIntent = 'court';
     pushLog(game, 'You played Ember cards to The Court — Harmony +2!');
-    pushLog(game, 'Rook answers in The Vault with a pair of Tide.');
-    pushLog(game, 'Turn 4 — mana refills to 5. Draw a card.');
+    pushLog(game, 'Rook answers in The Garden with a pair of Tide.');
+    pushLog(game, 'Turn 5 — mana refills to 6. Draw a card.');
     return game;
   }
   if (shot === 'win' || shot === 'loss') {
