@@ -1,6 +1,10 @@
 /* Ember Court — input. One job: mouse and keyboard controls. */
 
-export function bindInput(game, ui, render, sounds) {
+export function bindInput(getGame, ui, render, sounds) {
+  // NOTE: getGame is a getter, not the game object — onRestart() replaces the
+  // game, and a captured object would go stale: after a rematch every click
+  // and keypress looked up cards in the finished game, so no card could be
+  // selected or played (the table looked alive but input was dead).
   const handEl = document.getElementById('hand');
   const lanesEl = document.getElementById('lanes');
 
@@ -8,7 +12,7 @@ export function bindInput(game, ui, render, sounds) {
     const cardEl = event.target.closest('.card');
     if (!cardEl) return;
     const uid = Number(cardEl.dataset.uid);
-    const card = game.you.hand.find((c) => c.uid === uid);
+    const card = getGame().you.hand.find((c) => c.uid === uid);
     if (!card) return;
     if (ui.selectedCard === uid) { ui.selectedCard = null; }
     else {
@@ -35,7 +39,7 @@ export function bindInput(game, ui, render, sounds) {
   });
 
   document.getElementById('end-turn-btn').addEventListener('click', () => {
-    if (game.phase === 'play') ui.onEndTurn();
+    if (getGame().phase === 'play') ui.onEndTurn();
   });
   document.getElementById('help-btn').addEventListener('click', () => { ui.showHelp = true; render(); });
   document.getElementById('mute-btn').addEventListener('click', () => {
@@ -45,6 +49,7 @@ export function bindInput(game, ui, render, sounds) {
   });
 
   document.addEventListener('keydown', (event) => {
+    const game = getGame();
     if (game.phase === 'title' && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault(); ui.onStart(); return;
     }

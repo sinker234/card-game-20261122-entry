@@ -104,5 +104,5 @@ function flashIfHurt(side, life, prevLife) {
 window.__game = game;
 window.__ui = ui;
 
-bindInput(game, ui, draw, sounds);
+bindInput(() => game, ui, draw, sounds);
 draw();
